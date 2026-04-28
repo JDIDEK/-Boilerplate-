@@ -1,21 +1,40 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Oswald } from "next/font/google";
+import { Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const oswald = Oswald({
-  variable: "--font-editorial",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+const mg = localFont({
+  variable: "--font-mg",
+  src: [
+    {
+      path: "../public/jasmine/fonts/MG-B.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../public/jasmine/fonts/MG-BL.woff2",
+      weight: "800",
+      style: "normal",
+    },
+    {
+      path: "../public/jasmine/fonts/MG-EB.woff2",
+      weight: "900",
+      style: "normal",
+    },
+  ],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
+  weight: ["600", "700", "800"],
 });
 
 export const metadata: Metadata = {
-  title: "Maison Lame - Coutellerie d'atelier",
-  description: "Coutellerie contemporaine, lames de cuisine et pieces d'atelier forgees en France.",
+  title: "Jasmine Gunarto",
+  description:
+    "Jasmine Gunarto is a motion designer specializing in 2D animation, motion graphics, and visual storytelling.",
 };
 
 export default function RootLayout({
@@ -24,11 +43,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="fr"
-      className={`${oswald.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={`${mg.variable} ${manrope.variable} h-full antialiased`}>
+      <body>{children}</body>
     </html>
   );
 }
