@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0f0e;
+  --foreground: #ece9df;
+  --color-ink: #0a0f0e;
+  --color-charcoal: #111817;
+  --color-earth: #151c1a;
+  --color-paper: #ece9df;
+  --color-cream: #f5f0e5;
+  --color-muted: #9da6a0;
+  --color-soft: #cfd2c8;
+  --color-fade: #6e7771;
+  --color-soft-ink: #27302d;
+  --color-border: #39443f;
+  --color-divider: #9aa19b;
+  --color-copper: #b46a42;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-editorial);
+  --font-editorial: var(--font-editorial);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-editorial), "Arial Narrow", sans-serif;
+}
+
+* {
+  min-width: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-paper);
+  outline-offset: 2px;
+}
+
+.footer-marquee {
+  animation: footer-marquee 18s linear infinite;
+  white-space: nowrap;
+}
+
+@keyframes footer-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 640px) {
+  .footer-marquee {
+    animation-duration: 14s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-marquee {
+    animation: none;
+    transform: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

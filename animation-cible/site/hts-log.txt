@@ -1,0 +1,69 @@
+HTTrack3.49-6 launched on Mon, 27 Apr 2026 16:29:20 at https://jasminegunarto.com/
+(httrack https://jasminegunarto.com/ -O ./site )
+
+Information, Warnings and Errors reported for this mirror:
+note:	the hts-log.txt file, and hts-cache folder, may contain sensitive information,
+	such as username/password authentication for websites mirrored in this project
+	do not share these files/folders if you want these information to remain private
+
+16:33:45	Error: 	"Not Found" (404) at link https://jasminegunarto.com/cdn-cgi/l/email-protection (from https://jasminegunarto.com/)
+16:33:55	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=209
+16:33:55	Warning: 	File has moved from https://jasminegunarto.com/?p=209 to https://jasminegunarto.com/works/
+16:36:38	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=211
+16:36:38	Warning: 	File has moved from https://jasminegunarto.com/?p=211 to https://jasminegunarto.com/break/
+16:36:53	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=213
+16:36:53	Warning: 	File has moved from https://jasminegunarto.com/?p=213 to https://jasminegunarto.com/about/
+16:36:53	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=881
+16:36:53	Warning: 	File has moved from https://jasminegunarto.com/?p=881 to https://jasminegunarto.com/home-in-a-hot-pot/
+16:36:53	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=847
+16:36:53	Warning: 	File has moved from https://jasminegunarto.com/?p=847 to https://jasminegunarto.com/flow-studio-branding/
+16:36:53	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=873
+16:36:53	Warning: 	File has moved from https://jasminegunarto.com/?p=873 to https://jasminegunarto.com/pre-college-2025/
+16:36:53	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=986
+16:36:53	Warning: 	File has moved from https://jasminegunarto.com/?p=986 to https://jasminegunarto.com/the-taste-gap-visual-essay/
+16:36:54	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=997
+16:36:54	Warning: 	File has moved from https://jasminegunarto.com/?p=997 to https://jasminegunarto.com/avant-garde-2025/
+16:36:54	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=638
+16:36:54	Warning: 	File has moved from https://jasminegunarto.com/?p=638 to https://jasminegunarto.com/pea/
+16:36:54	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=594
+16:36:54	Warning: 	File has moved from https://jasminegunarto.com/?p=594 to https://jasminegunarto.com/graff-mayhem/
+16:36:54	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=640
+16:36:54	Warning: 	File has moved from https://jasminegunarto.com/?p=640 to https://jasminegunarto.com/future-proof/
+16:36:54	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=634
+16:36:54	Warning: 	File has moved from https://jasminegunarto.com/?p=634 to https://jasminegunarto.com/xenoflora/
+16:38:23	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=267
+16:38:23	Warning: 	File has moved from https://jasminegunarto.com/?p=267 to https://jasminegunarto.com/pinc/
+16:38:23	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=995
+16:38:23	Warning: 	File has moved from https://jasminegunarto.com/?p=995 to https://jasminegunarto.com/national-ad-council/
+16:38:23	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=970
+16:38:23	Warning: 	File has moved from https://jasminegunarto.com/?p=970 to https://jasminegunarto.com/telemundo/
+16:38:23	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=979
+16:38:24	Warning: 	File has moved from https://jasminegunarto.com/?p=979 to https://jasminegunarto.com/vote-boldly/
+16:38:24	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=982
+16:38:24	Warning: 	File has moved from https://jasminegunarto.com/?p=982 to https://jasminegunarto.com/moving-poster-shinichi-maruyama/
+16:38:24	Error: 	"Too Many Requests" (429) at link https://jasminegunarto.com/wp-content/uploads/2026/01/83ec24bfc397b28c1fbd871e8b1ae385c91a17c6.webp (from https://jasminegunarto.com/moving-poster-shinichi-maruyama/)
+16:38:24	Error: 	"Too Many Requests" (429) at link https://jasminegunarto.com/wp-json/wp/v2/posts/960 (from https://jasminegunarto.com/nature-abstraction/)
+16:38:24	Error: 	"Too Many Requests" (429) at link https://jasminegunarto.com/?p=960 (from https://jasminegunarto.com/nature-abstraction/)
+16:38:25	Error: 	"Too Many Requests" (429) at link https://jasminegunarto.com/wp-json/wp/v2/posts/968 (from https://jasminegunarto.com/einsteins-dreams-title-sequence/)
+16:38:25	Error: 	"Too Many Requests" (429) at link https://jasminegunarto.com/?p=968 (from https://jasminegunarto.com/einsteins-dreams-title-sequence/)
+16:38:25	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=1122
+16:38:25	Warning: 	File has moved from https://jasminegunarto.com/?p=1122 to https://jasminegunarto.com/demo-reel/
+16:38:25	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=632
+16:38:25	Warning: 	File has moved from https://jasminegunarto.com/?p=632 to https://jasminegunarto.com/sleeping-creature-self-portrait/
+16:38:25	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=630
+16:38:25	Warning: 	File has moved from https://jasminegunarto.com/?p=630 to https://jasminegunarto.com/elemental-alphabet-rotoscope/
+16:38:25	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=628
+16:38:25	Warning: 	File has moved from https://jasminegunarto.com/?p=628 to https://jasminegunarto.com/12-principles-of-animation/
+16:38:25	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=600
+16:38:25	Warning: 	File has moved from https://jasminegunarto.com/?p=600 to https://jasminegunarto.com/nabe/
+16:38:26	Warning: 	Moved Permanently for https://jasminegunarto.com/?p=599
+16:38:26	Warning: 	File has moved from https://jasminegunarto.com/?p=599 to https://jasminegunarto.com/haku-blossom/
+16:38:26	Warning: 	Found for https://jasminegunarto.com/pinc/Bun/
+16:38:26	Warning: 	File has moved from https://jasminegunarto.com/pinc/Bun/ to https://jasminegunarto.com
+16:38:26	Warning: 	Found for https://jasminegunarto.com/pinc/Deno/
+16:38:26	Warning: 	File has moved from https://jasminegunarto.com/pinc/Deno/ to https://jasminegunarto.com
+16:38:26	Warning: 	Found for https://jasminegunarto.com/pinc/Node.js/
+16:38:26	Warning: 	File has moved from https://jasminegunarto.com/pinc/Node.js/ to https://jasminegunarto.com
+
+HTTrack Website Copier/3.49-6 mirror complete in 9 minutes 6 seconds : 415 links scanned, 382 files written (165584445 bytes overall) [163821724 bytes received at 300039 bytes/sec], 3198628 bytes transferred using HTTP compression in 128 files, ratio 31%, 17.0 requests per connection
+(6 errors, 52 warnings, 0 messages)

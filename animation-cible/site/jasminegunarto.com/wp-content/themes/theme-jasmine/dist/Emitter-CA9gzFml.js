@@ -1,0 +1,1 @@
+function o(e){return{all:e=e||new Map,on:function(i,c){var t=e.get(i);t?t.push(c):e.set(i,[c])},off:function(i,c){var t=e.get(i);t&&(c?t.splice(t.indexOf(c)>>>0,1):e.set(i,[]))},emit:function(i,c){var t=e.get(i);t&&t.slice().map(function(n){n(c)}),(t=e.get("*"))&&t.slice().map(function(n){n(i,c)})}}}class r{constructor(){return o()}}const s=new r;export{s as e};

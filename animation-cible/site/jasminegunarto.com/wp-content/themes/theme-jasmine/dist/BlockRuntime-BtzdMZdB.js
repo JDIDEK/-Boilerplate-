@@ -1,0 +1,1 @@
+import{B as i}from"./BlockInstance-DGM_kYJd.js";class n extends i{constructor(t){super(t),this.init(t)}init(t){const s=t==null?void 0:t.qs(".t-media");s&&s.nodeName==="VIDEO"&&s.play()}destroy(){}}export{n as default};
