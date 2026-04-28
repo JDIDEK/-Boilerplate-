@@ -28,7 +28,7 @@ export function JasmineTransitions() {
       clipPath: "inset(110% 0 0 0)",
     });
 
-    const playTransition = (type: keyof typeof panels, targetHash?: string) => {
+    const playTransition = (type: keyof typeof panels, targetHash?: string, targetUrl?: string) => {
       const panel = panels[type] ?? panels.home;
       if (!panel) {
         return;
@@ -87,6 +87,9 @@ export function JasmineTransitions() {
           if (targetHash) {
             lenisRef?.current?.scrollTo(targetHash, { duration: 1.2 });
           }
+          if (targetUrl) {
+            window.location.href = targetUrl;
+          }
         }, "-=0.35")
         .to(panel, { clipPath: "inset(0 0 100% 0)", duration: 1.1, ease: "ease-inout-1" })
         .set(panel, { opacity: 0, pointerEvents: "none" })
@@ -100,13 +103,26 @@ export function JasmineTransitions() {
       }
 
       const href = link.getAttribute("href");
-      if (!href?.startsWith("#")) {
+      if (!href) {
         return;
       }
 
       event.preventDefault();
       const type = link.dataset.transitionType as keyof typeof panels;
-      playTransition(type, href);
+      if (href.startsWith("#")) {
+        playTransition(type, href);
+        return;
+      }
+
+      const target = new URL(href, window.location.origin);
+      if (target.origin !== window.location.origin) {
+        window.location.href = href;
+        return;
+      }
+      if (target.pathname === window.location.pathname && !target.hash) {
+        return;
+      }
+      playTransition(type, undefined, target.pathname + target.search + target.hash);
     };
 
     document.addEventListener("click", onClick);

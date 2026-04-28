@@ -16,16 +16,24 @@ export function HomeIntro() {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const { gsap, ScrollTrigger } = ensureJasmineGsap();
     const q = gsap.utils.selector(section);
+    const isMobile = window.matchMedia("(max-width: 601px)").matches;
     const heading = q(".heading-display")[0] as HTMLElement;
-    const desktopLines = q(".heading-display-inner:not(.heading-display-inner-mobile) .hg-1");
-    const mobileLines = q(".heading-display-inner-mobile .hg-1");
-    const captions = q(".t-caption");
-    const captionSplits = captions.map((caption) =>
+    const activeLines = q(
+      isMobile
+        ? ".heading-display-inner-mobile .hg-1"
+        : ".heading-display-inner:not(.heading-display-inner-mobile) .hg-1",
+    );
+    const desktopCaptions = q(".heading-display-inner:not(.heading-display-inner-mobile) .t-caption");
+    const mobileCaptions = q(".t-caption-wrapper-mobile > .t-caption");
+    const captionWrappers = q(".heading-display-inner:not(.heading-display-inner-mobile) .t-caption-wrapper");
+    const activeCaptions = isMobile ? mobileCaptions : desktopCaptions;
+    const captionSplits = activeCaptions.map((caption) =>
       splitText(caption as Element, { type: "lines", mask: "lines" }),
     );
+    const captionTweens: Array<ReturnType<typeof gsap.fromTo>> = [];
 
     if (reducedMotion) {
-      gsap.set([desktopLines, mobileLines, captions], { clearProps: "all", opacity: 1 });
+      gsap.set([activeLines, activeCaptions], { clearProps: "all", opacity: 1 });
       return () => captionSplits.forEach((split) => split.revert());
     }
 
@@ -37,16 +45,7 @@ export function HomeIntro() {
       },
     });
 
-    desktopLines.forEach((line, index) => {
-      intro.fromTo(
-        line,
-        { xPercent: index % 2 === 0 ? -100 : 100 },
-        { xPercent: 0, duration: 0.95, ease: "ease-inout-1" },
-        index === 0 ? 0 : "<+=0.34",
-      );
-    });
-
-    mobileLines.forEach((line, index) => {
+    activeLines.forEach((line, index) => {
       intro.fromTo(
         line,
         { xPercent: index % 2 === 0 ? -100 : 100 },
@@ -58,16 +57,42 @@ export function HomeIntro() {
     captionSplits.forEach((split, index) => {
       intro.fromTo(
         split.lines,
-        { xPercent: index === 1 ? 100 : -100 },
+        isMobile
+          ? { yPercent: 100 }
+          : { xPercent: index === 1 ? 100 : -100 },
         {
-          xPercent: 0,
-          duration: 1.5,
-          stagger: 0.05,
-          ease: "expo.out",
+          ...(isMobile ? { yPercent: 0 } : { xPercent: 0 }),
+          duration: isMobile ? 1.4 : 1.5,
+          stagger: isMobile ? 0 : 0.05,
+          ease: isMobile ? "ease-inout-1" : "expo.out",
         },
-        index === 0 ? 1.2 : "<",
+        index === 0 ? (isMobile ? 1.8 : 1.2) : "<",
       );
     });
+
+    if (!isMobile) {
+      captionWrappers.forEach((wrapper) => {
+        const caption = wrapper.children[0];
+        if (!caption) {
+          return;
+        }
+        const tween = gsap.fromTo(
+          caption,
+          { top: "100%", yPercent: -100 },
+          {
+            top: "0%",
+            yPercent: 0,
+            ease: "none",
+            scrollTrigger: {
+              trigger: wrapper,
+              start: "top bottom",
+              scrub: true,
+            },
+          },
+        );
+        captionTweens.push(tween);
+      });
+    }
 
     const parallax = gsap.timeline({
       scrollTrigger: {
@@ -81,11 +106,12 @@ export function HomeIntro() {
     parallax.fromTo(
       section.children[0],
       { y: 0 },
-      { y: section.clientWidth / 4, ease: "none" },
+      { y: () => section.clientWidth * (isMobile ? 0.5 : 0.25), ease: "none" },
     );
 
     return () => {
       captionSplits.forEach((split) => split.revert());
+      captionTweens.forEach((tween) => tween.kill());
       intro.kill();
       parallax.kill();
       ScrollTrigger.getAll().forEach((trigger) => {
@@ -171,4 +197,3 @@ export function HomeIntro() {
     </section>
   );
 }
-

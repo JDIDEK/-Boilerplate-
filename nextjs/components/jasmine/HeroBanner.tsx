@@ -27,7 +27,7 @@ export function HeroBanner() {
     const headingRight = q(".hg-2--right .hg-2-inner")[0] as HTMLElement;
     const scrollIndicator = q(".scroll-indicator")[0] as HTMLElement;
     const header = document.querySelector<HTMLElement>(".main-header");
-    const titleSplit = splitText(title, { type: "chars", mask: "chars" });
+    const titleSplit = splitText(title, { type: "chars" });
     const cleanups: Array<() => void> = [];
 
     if (video) {
@@ -49,31 +49,73 @@ export function HeroBanner() {
       xPercent: -50,
       yPercent: -50,
       top: "50%",
-      clipPath: "inset(0 0 100% 0)",
     });
-    gsap.set(video, { yPercent: -100, scale: 1.6 });
+    gsap.set(video, { yPercent: -100, scale: 1.6, clipPath: "inset(0 0 100% 0)" });
     gsap.set(titleWrapper, { yPercent: -50 });
 
     titleSplit.chars.forEach((char) => {
+      const text = char.textContent ?? "";
+      char.textContent = "";
+      const current = document.createElement("span");
+      const next = document.createElement("span");
+      current.textContent = text;
+      next.textContent = text;
+      char.append(current, next);
+      gsap.set(char, { overflow: "clip" });
+      gsap.set(next, { position: "absolute", top: "0%", right: "-100%" });
+
       const enter = () => {
-        gsap.timeline().to(char, {
-          yPercent: -55,
-          duration: 0.18,
-          ease: "expo.out",
-          yoyo: true,
-          repeat: 1,
-        });
+        gsap
+          .timeline()
+          .fromTo(
+            current,
+            { xPercent: 0 },
+            { xPercent: -100, duration: 0.8, ease: "expo.out", overwrite: true },
+          )
+          .fromTo(
+            next,
+            { xPercent: 0 },
+            { xPercent: -100, duration: 0.8, ease: "expo.out", overwrite: true },
+            "<+=.18",
+          );
       };
-      char.addEventListener("pointerenter", enter);
-      cleanups.push(() => char.removeEventListener("pointerenter", enter));
+      char.addEventListener("mouseenter", enter);
+      cleanups.push(() => char.removeEventListener("mouseenter", enter));
     });
 
     const intro = gsap.timeline({ delay: 1.15 });
+    const currentTitleChars = titleSplit.chars.map((char) => char.children[0]).filter(Boolean);
+    const nextTitleChars = titleSplit.chars.map((char) => char.children[1]).filter(Boolean);
+
     intro
       .fromTo(
         title,
         { yPercent: 100 },
         { yPercent: 0, ease: "ease-inout-1", duration: 0.9 },
+      )
+      .fromTo(
+        currentTitleChars,
+        { xPercent: 0 },
+        {
+          xPercent: -100,
+          duration: 1.2,
+          ease: "ease-inout-1",
+          overwrite: true,
+          stagger: { each: 0.05 },
+        },
+        "<+=0.4",
+      )
+      .fromTo(
+        nextTitleChars,
+        { xPercent: 0 },
+        {
+          xPercent: -100,
+          duration: 0.9,
+          ease: "expo.out",
+          overwrite: true,
+          stagger: { each: 0.04 },
+        },
+        "<+=1",
       )
       .to(
         titleWrapper,
@@ -84,7 +126,7 @@ export function HeroBanner() {
           ease: "expo.inOut",
           duration: 1.6,
         },
-        "-=0.15",
+        "-=1.2",
       )
       .to(
         titleWrapper,
@@ -110,12 +152,16 @@ export function HeroBanner() {
         },
         "-=1.04",
       )
-      .to(mediaWrapper, { clipPath: "inset(0 0 0% 0)", duration: 1.8, ease: "expo.out" }, "<")
       .fromTo(
         [mediaCaptions, headingLeft, headingRight],
         { yPercent: -100 },
         { yPercent: 0, ease: "expo.out", duration: 1.8 },
         "<+=0.1",
+      )
+      .set(
+        [q(".media-caption--left")[0], q(".media-caption--right")[0], q(".hg-2--left")[0], q(".hg-2--right")[0]],
+        { overflow: "unset" },
+        "<+=0.9",
       )
       .to(header, { opacity: 1, duration: 1.2, ease: "ease-x" }, "-=0.7")
       .to(scrollIndicator, { yPercent: 0, opacity: 1, ease: "expo.out", duration: 1.2 }, "<");
@@ -141,15 +187,73 @@ export function HeroBanner() {
         end: "bottom+=150% top",
         scrub: true,
         pinSpacing: true,
+        invalidateOnRefresh: true,
       },
     });
 
+    const centerOffset = (element: Element, bounds: "left" | "right") => {
+      const rect = element.getBoundingClientRect();
+      const distanceToCenter = window.innerWidth / 2 - rect.left;
+      return bounds === "right" ? distanceToCenter - rect.width : distanceToCenter;
+    };
+    const headingLeftBox = q(".hg-2--left")[0] as HTMLElement;
+    const headingRightBox = q(".hg-2--right")[0] as HTMLElement;
+    const captionLeftBox = q(".media-caption--left")[0] as HTMLElement;
+    const captionRightBox = q(".media-caption--right")[0] as HTMLElement;
+
     scroll
+      .set(mediaWrapper, { xPercent: "-50", yPercent: "-50" }, 0)
       .to(mediaWrapper, { top: "100%", yPercent: 0, duration: 1.8, ease: "none" }, 0)
-      .to(headingLeft, { x: "-32vw", duration: 1.8, ease: "none" }, 0)
-      .to(headingRight, { x: "32vw", duration: 1.8, ease: "none" }, 0)
-      .to(mediaCaptions[0], { x: "-32vw", duration: 1.8, ease: "none" }, 0)
-      .to(mediaCaptions[1], { x: "32vw", duration: 1.8, ease: "none" }, 0)
+      .to(
+        headingLeft,
+        {
+          x: () =>
+            `${centerOffset(headingLeftBox, "right") + (headingLeftBox.getBoundingClientRect().width - headingRightBox.getBoundingClientRect().width) / 2}px`,
+          duration: 1.8,
+          ease: "none",
+        },
+        0,
+      )
+      .to(
+        headingRight,
+        {
+          x: () =>
+            `${centerOffset(headingRightBox, "left") + (headingLeftBox.getBoundingClientRect().width - headingRightBox.getBoundingClientRect().width) / 2}px`,
+          duration: 1.8,
+          ease: "none",
+        },
+        0,
+      )
+      .to(
+        mediaCaptions[0],
+        {
+          x: () =>
+            `${centerOffset(captionLeftBox, "right") + (captionLeftBox.getBoundingClientRect().width - captionRightBox.getBoundingClientRect().width) / 2}px`,
+          duration: 1.8,
+          ease: "none",
+        },
+        0,
+      )
+      .to(
+        mediaCaptions[1],
+        {
+          x: () =>
+            `${centerOffset(captionRightBox, "left") + (captionLeftBox.getBoundingClientRect().width - captionRightBox.getBoundingClientRect().width) / 2}px`,
+          duration: 1.8,
+          ease: "none",
+        },
+        0,
+      )
+      .to(
+        mediaWrapper,
+        {
+          width: () => `${mediaOuter.getBoundingClientRect().width}px`,
+          height: () => `${mediaOuter.getBoundingClientRect().height}px`,
+          duration: 0,
+          ease: "none",
+        },
+        0,
+      )
       .to(
         mediaWrapper,
         {
@@ -233,4 +337,3 @@ export function HeroBanner() {
     </section>
   );
 }
-

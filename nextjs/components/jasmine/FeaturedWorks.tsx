@@ -101,27 +101,55 @@ export function FeaturedWorks({ works }: FeaturedWorksProps) {
         "<+=0.3",
       );
 
-    cards.forEach((card, index) => {
+    const revealCard = (card: HTMLElement) => {
       const inner = card.querySelector<HTMLElement>(".t-card-inner");
       if (!inner) {
-        return;
+        return gsap.timeline();
       }
+      return gsap.timeline().fromTo(
+        inner,
+        { opacity: 0 },
+        { opacity: 1, duration: 1.2, ease: "ease-inout-1" },
+        "<",
+      );
+    };
 
-      gsap
-        .timeline({
-          delay: index % 2 === 0 ? 0.6 : 0,
+    cards.forEach((card, index) => {
+      if ((index + 1) % 2) {
+        const pair = gsap.timeline({
+          delay: 0.6,
           scrollTrigger: {
             trigger: card,
             start: "top bottom",
             end: "bottom top",
             once: true,
           },
-        })
-        .fromTo(inner, { opacity: 0 }, { opacity: 1, duration: 1.2, ease: "ease-inout-1" })
-        .fromTo(card, { yPercent: 20 }, { yPercent: 0, duration: 1.6, ease: "expo.out" }, "<");
+        });
+        pair.add(revealCard(card));
+        const nextCard = cards[index + 1];
+        if (nextCard) {
+          pair.add(revealCard(nextCard), "<+=0.2");
+        }
+      }
 
+      gsap.fromTo(
+        card,
+        { yPercent: 20 },
+        {
+          yPercent: 0,
+          duration: 1.6,
+          ease: "expo.out",
+          scrollTrigger: {
+            trigger: card,
+            start: "top-=20% bottom",
+            end: "bottom top",
+            once: true,
+          },
+        },
+      );
       const media = card.querySelector<HTMLElement>(".t-card-media-wrapper");
       if (media) {
+        gsap.set(media, { scale: 1.04, willChange: "transform" });
         gsap.fromTo(
           media,
           { yPercent: -8 },
@@ -166,12 +194,12 @@ export function FeaturedWorks({ works }: FeaturedWorksProps) {
                 {works.map((work) => (
                   <a
                     className="t-card"
-                    href={`#${work.slug}`}
+                    href={`/works/${work.slug}`}
                     data-transition-type={work.transitionType}
                     data-slug={work.slug}
                     key={work.slug}
                   >
-                    <div className="t-card-inner" data-parallax="8">
+                    <div className="t-card-inner" data-parallax="8" data-parallax-target=".t-card-media-wrapper">
                       <div className="t-card-media-wrapper">
                         <div className="t-card-hover-media-wrapper">
                           {work.hoverVideo ? (
@@ -209,7 +237,7 @@ export function FeaturedWorks({ works }: FeaturedWorksProps) {
         </div>
         <div className="t-box bottom-cta">
           <div className="cta-wrapper">
-            <MagneticButton href="#works" data-transition-type="project">
+            <MagneticButton href="/works" data-transition-type="project">
               See All Work
             </MagneticButton>
           </div>
@@ -218,4 +246,3 @@ export function FeaturedWorks({ works }: FeaturedWorksProps) {
     </section>
   );
 }
-
