@@ -61,7 +61,8 @@ export function HeroBanner() {
       current.textContent = text;
       next.textContent = text;
       char.append(current, next);
-      gsap.set(char, { overflow: "clip" });
+      gsap.set(char, { display: "inline-block", overflow: "clip", position: "relative" });
+      gsap.set([current, next], { display: "block" });
       gsap.set(next, { position: "absolute", top: "0%", right: "-100%" });
 
       const enter = () => {
@@ -203,7 +204,7 @@ export function HeroBanner() {
 
     scroll
       .set(mediaWrapper, { xPercent: "-50", yPercent: "-50" }, 0)
-      .to(mediaWrapper, { top: "100%", yPercent: 0, duration: 1.8, ease: "none" }, 0)
+      .fromTo(mediaWrapper, { top: "50%", yPercent: -50 }, { top: "100%", yPercent: 0, ease: "none" }, 0)
       .to(
         headingLeft,
         {

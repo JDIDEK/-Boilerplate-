@@ -4,9 +4,31 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { ensureJasmineGsap } from "@/lib/animations/eases";
 
 const progressStops = [0, 7, 18, 29, 43, 58, 76, 89, 100];
+const preloaderSessionKey = "jasmine-preloader-played";
 
 function formatDigits(value: number) {
   return String(value).padStart(3, "0").slice(-3).split("");
+}
+
+function hasPlayedPreloader() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.sessionStorage.getItem(preloaderSessionKey) === "true";
+  } catch {
+    return false;
+  }
+}
+
+function markPreloaderPlayed() {
+  try {
+    window.sessionStorage.setItem(preloaderSessionKey, "true");
+    document.documentElement.dataset.jasminePreloader = "played";
+  } catch {
+    /* sessionStorage can be unavailable in strict privacy modes */
+  }
 }
 
 export function JasminePreloader() {
@@ -14,8 +36,18 @@ export function JasminePreloader() {
   const [hidden, setHidden] = useState(false);
 
   useLayoutEffect(() => {
+    if (hidden) {
+      return;
+    }
+
     const root = rootRef.current;
     if (!root) {
+      return;
+    }
+
+    if (hasPlayedPreloader()) {
+      root.style.display = "none";
+      root.style.pointerEvents = "none";
       return;
     }
 
@@ -26,9 +58,12 @@ export function JasminePreloader() {
     const number = root.querySelector<HTMLElement>(".preloader-number");
 
     if (reducedMotion) {
+      markPreloaderPlayed();
       gsap.set(root, { autoAlpha: 0, pointerEvents: "none" });
       return;
     }
+
+    markPreloaderPlayed();
 
     const setCurrent = (value: number) => {
       formatDigits(value).forEach((digit, index) => {
@@ -102,7 +137,7 @@ export function JasminePreloader() {
     return () => {
       timeline.kill();
     };
-  }, []);
+  }, [hidden]);
 
   if (hidden) {
     return null;

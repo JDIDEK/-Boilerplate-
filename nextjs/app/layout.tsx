@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import localFont from "next/font/local";
+import Script from "next/script";
+import { JasmineRootShell } from "@/components/jasmine/JasmineRootShell";
 import "./globals.css";
 
 const mg = localFont({
@@ -43,8 +45,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${mg.variable} ${manrope.variable} h-full antialiased`}>
-      <body>{children}</body>
+    <html lang="en" className={`${mg.variable} ${manrope.variable} h-full antialiased`} suppressHydrationWarning>
+      <body>
+        <Script
+          id="jasmine-preloader-state"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(sessionStorage.getItem('jasmine-preloader-played')==='true'){document.documentElement.dataset.jasminePreloader='played'}}catch(e){}",
+          }}
+        />
+        <JasmineRootShell>{children}</JasmineRootShell>
+      </body>
     </html>
   );
 }

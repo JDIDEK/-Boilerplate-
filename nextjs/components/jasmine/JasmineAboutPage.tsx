@@ -21,7 +21,8 @@ function setupHorizontalCharHover(chars: Element[], gsap: ReturnType<typeof ensu
     current.textContent = text;
     next.textContent = text;
     char.append(current, next);
-    gsap.set(char, { overflow: "clip" });
+    gsap.set(char, { display: "inline-block", overflow: "clip", position: "relative" });
+    gsap.set([current, next], { display: "block" });
     gsap.set(next, { position: "absolute", top: "0%", right: "-100%" });
 
     const enter = () => {

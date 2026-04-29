@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { curatedWorks, type JasmineWork } from "@/data/jasmine";
 import { ensureJasmineGsap } from "@/lib/animations/eases";
+import { useJasmineLoopCarousel } from "@/lib/animations/useJasmineLoopCarousel";
 import { JasminePageShell } from "./JasminePageShell";
 
 function OrnamentFrame() {
@@ -32,16 +33,28 @@ function OrnamentFrame() {
   );
 }
 
-function useBoundedIndex(length: number) {
-  const [active, setActive] = useState(0);
-  const update = (next: number) => setActive(((next % length) + length) % length);
-  return [active, update] as const;
-}
-
 function CuratedWorksSlider({ works }: { works: JasmineWork[] }) {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const [active, setActive] = useBoundedIndex(works.length);
   const total = useMemo(() => works.length.toString().padStart(2, "0"), [works.length]);
+  const loopedWorks = useMemo(
+    () =>
+      Array.from({ length: 3 }, (_, copy) =>
+        works.map((work, index) => ({
+          copy,
+          index,
+          work,
+        })),
+      ).flat(),
+    [works],
+  );
+  const carousel = useJasmineLoopCarousel({
+    sectionRef,
+    length: works.length,
+    mode: "works",
+    durationSelector: ".play-state-duration",
+    stateSelector: ".play-state-label-text",
+  });
+  const active = carousel.active;
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -53,13 +66,13 @@ function CuratedWorksSlider({ works }: { works: JasmineWork[] }) {
     const lines = q(".line-ornament-container .t-line");
     const corners = q(".corner-ornament-wrapper");
     const controls = q(".t-slide-controls, .title-slider, .play-state");
-    const cards = q(".t-card");
-    const firstCards = [cards[0], cards[1], cards[cards.length - 1]].filter(Boolean);
+    const cards = q(".card-container .t-card") as HTMLElement[];
+    const firstCards = [cards[works.length], cards[works.length + 1], cards[works.length - 1]].filter(Boolean);
 
-    gsap.set([cards[1], cards[cards.length - 1]], { opacity: 0 });
+    gsap.set([cards[works.length + 1], cards[works.length - 1]], { opacity: 0 });
     const intro = gsap.timeline({ delay: 0.75 });
     intro
-      .set([cards[1], cards[cards.length - 1]], { opacity: 1 })
+      .set([cards[works.length + 1], cards[works.length - 1]], { opacity: 1 })
       .fromTo(
         firstCards.map((card) => card.querySelector("img")).filter(Boolean),
         { xPercent: (index: number) => (index === 1 ? 100 : -100) },
@@ -78,88 +91,7 @@ function CuratedWorksSlider({ works }: { works: JasmineWork[] }) {
     return () => {
       intro.kill();
     };
-  }, []);
-
-  useLayoutEffect(() => {
-    const section = sectionRef.current;
-    if (!section) {
-      return;
-    }
-    const { gsap } = ensureJasmineGsap();
-    const cards = gsap.utils.toArray<HTMLElement>(".section-curated-works .t-card");
-    const titles = gsap.utils.toArray<HTMLElement>(".section-curated-works .title-slider-item");
-    const nums = gsap.utils.toArray<HTMLElement>(".section-curated-works .t-slide-navigation-number");
-    const activeCard = cards[active];
-
-    cards.forEach((card, index) => {
-      const offset = index - active;
-      const wrapped = offset > works.length / 2 ? offset - works.length : offset < -works.length / 2 ? offset + works.length : offset;
-      gsap.to(card, {
-        yPercent: wrapped * 112,
-        scale: Math.max(0.52, 1 - Math.abs(wrapped) * 0.16),
-        opacity: Math.abs(wrapped) > 2 ? 0 : 1,
-        zIndex: 50 - Math.abs(wrapped),
-        duration: 1.2,
-        ease: "ease-inout-1",
-      });
-      card.classList.toggle("is--active", index === active);
-      const video = card.querySelector<HTMLVideoElement>("video");
-      if (index === active && video) {
-        video.play().catch(() => undefined);
-      } else if (video) {
-        video.pause();
-        video.currentTime = 0;
-      }
-    });
-
-    titles.forEach((title, index) => {
-      gsap.to(title, {
-        yPercent: (index - active) * -100,
-        opacity: index === active ? 1 : 0.28,
-        duration: 1.1,
-        ease: "ease-inout-1",
-      });
-    });
-
-    nums.forEach((num, index) => {
-      gsap.to(num.querySelector(".t-slide-navigation-number-inner"), {
-        scale: index === active ? 1 : 0.52,
-        opacity: index === active ? 1 : 0.28,
-        duration: 0.8,
-        ease: "expo.out",
-      });
-    });
-
-    if (activeCard) {
-      gsap.to(".section-curated-works .line-ornament-container-wrapper-inner", {
-        y: 0,
-        scale: 1,
-        ease: "expo.out",
-        duration: 0.8,
-      });
-    }
-  }, [active, works.length]);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) {
-      return;
-    }
-    let locked = false;
-    const wheel = (event: WheelEvent) => {
-      event.preventDefault();
-      if (locked) {
-        return;
-      }
-      locked = true;
-      setActive(active + (event.deltaY > 0 ? 1 : -1));
-      window.setTimeout(() => {
-        locked = false;
-      }, 620);
-    };
-    section.addEventListener("wheel", wheel, { passive: false });
-    return () => section.removeEventListener("wheel", wheel);
-  }, [active, setActive]);
+  }, [works.length]);
 
   return (
     <section ref={sectionRef} className="section-curated-works">
@@ -177,14 +109,13 @@ function CuratedWorksSlider({ works }: { works: JasmineWork[] }) {
             <div className="title-slider">
               <div className="title-slider-container-wrapper">
                 <div className="title-slider-container">
-                  {works.map((work, index) => (
+                  {loopedWorks.map(({ copy, index, work }) => (
                     <a
                       href={`/works/${work.slug}`}
                       className="title-slider-item"
                       data-transition-type="project"
                       data-slug={work.slug}
-                      key={work.slug}
-                      onMouseEnter={() => setActive(index)}
+                      key={`${work.slug}-title-${copy}-${index}`}
                     >
                       <div className="title-slider-inner">{work.title}</div>
                     </a>
@@ -195,14 +126,13 @@ function CuratedWorksSlider({ works }: { works: JasmineWork[] }) {
             <div className="card-slider">
               <div className="card-container-wrapper">
                 <div className="card-container">
-                  {works.map((work, index) => (
+                  {loopedWorks.map(({ copy, index, work }) => (
                     <a
                       href={`/works/${work.slug}`}
                       className="t-card"
                       data-transition-type="project"
                       data-slug={work.slug}
-                      key={work.slug}
-                      onMouseEnter={() => setActive(index)}
+                      key={`${work.slug}-card-${copy}-${index}`}
                     >
                       <div className="t-card-media">
                         {work.hoverVideo ? (
@@ -218,7 +148,7 @@ function CuratedWorksSlider({ works }: { works: JasmineWork[] }) {
               </div>
             </div>
             <div className="t-slide-controls">
-              <button className="t-slide-navigation prev" type="button" onClick={() => setActive(active - 1)}>
+              <button className="t-slide-navigation prev" type="button" onClick={carousel.prev}>
                 PREV
               </button>
               <div className="t-slide-number-current-container-wrapper">
@@ -228,7 +158,7 @@ function CuratedWorksSlider({ works }: { works: JasmineWork[] }) {
               </div>
               <div className="t-slide-number-separator">/</div>
               <div className="t-slide-number-total">{total}</div>
-              <button className="t-slide-navigation next" type="button" onClick={() => setActive(active + 1)}>
+              <button className="t-slide-navigation next" type="button" onClick={carousel.next}>
                 NEXT
               </button>
               <div className="t-slide-navigation-number-wrapper">
@@ -238,7 +168,7 @@ function CuratedWorksSlider({ works }: { works: JasmineWork[] }) {
                       type="button"
                       className="t-slide-navigation-number"
                       key={work.slug}
-                      onClick={() => setActive(index)}
+                      onClick={() => carousel.goTo(index)}
                     >
                       <span className="t-slide-navigation-number-inner">{work.number}</span>
                     </button>

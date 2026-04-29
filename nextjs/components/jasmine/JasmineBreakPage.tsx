@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { breakItems, type BreakItem } from "@/data/jasmine";
 import { ensureJasmineGsap } from "@/lib/animations/eases";
+import { useJasmineLoopCarousel } from "@/lib/animations/useJasmineLoopCarousel";
 import { splitText } from "@/lib/animations/split";
 import { JasminePageShell } from "./JasminePageShell";
 
@@ -35,12 +36,24 @@ function OrnamentFrame() {
 
 function AllBreakSlider({ items }: { items: BreakItem[] }) {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const [active, setActive] = useState(0);
   const total = useMemo(() => items.length.toString().padStart(2, "0"), [items.length]);
-  const wrap = useCallback(
-    (value: number) => setActive(((value % items.length) + items.length) % items.length),
-    [items.length],
+  const loopedItems = useMemo(
+    () =>
+      Array.from({ length: 3 }, (_, copy) =>
+        items.map((item, index) => ({
+          copy,
+          index,
+          item,
+        })),
+      ).flat(),
+    [items],
   );
+  const carousel = useJasmineLoopCarousel({
+    sectionRef,
+    length: items.length,
+    mode: "break",
+  });
+  const active = carousel.active;
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -54,15 +67,22 @@ function AllBreakSlider({ items }: { items: BreakItem[] }) {
     const lines = q(".line-ornament-container .t-line");
     const corners = q(".corner-ornament-wrapper");
     const controls = q(".t-slide-controls, .title-slider");
-    const cards = q(".t-card");
-    const visibleMedia = cards.map((card) => card.querySelector(".t-card-media")).filter(Boolean);
+    const cards = q(".card-container .t-card") as HTMLElement[];
+    const visibleCards = [cards[items.length - 2], cards[items.length - 1], cards[items.length], cards[items.length + 1], cards[items.length + 2]]
+      .filter(Boolean);
+    const visibleMedia = visibleCards.map((card) => card.querySelector(".t-card-media")).filter(Boolean);
+    const isMobile = window.matchMedia("(max-width: 601px)").matches;
 
     const intro = gsap.timeline({ delay: 0.75 });
     intro
       .fromTo(
         visibleMedia,
-        { yPercent: (index: number) => (index % 2 ? 100 : -100), opacity: 0 },
-        { yPercent: 0, opacity: 1, ease: "ease-x", duration: 1.6, stagger: 0.06 },
+        isMobile
+          ? { xPercent: (index: number) => (index % 2 ? 100 : -100), opacity: 0 }
+          : { yPercent: (index: number) => (index % 2 ? 100 : -100), opacity: 0 },
+        isMobile
+          ? { xPercent: 0, opacity: 1, ease: "ease-x", duration: 1.6, stagger: 0.06 }
+          : { yPercent: 0, opacity: 1, ease: "ease-x", duration: 1.6, stagger: 0.06 },
       )
       .fromTo(".section-all-break .line-ornament-container-wrapper-inner", { scale: 1.15 }, { scale: 1, ease: "ease-inout-1", duration: 2 }, "<+=.1")
       .fromTo(
@@ -79,75 +99,7 @@ function AllBreakSlider({ items }: { items: BreakItem[] }) {
       headingSplit.revert();
       intro.kill();
     };
-  }, []);
-
-  useLayoutEffect(() => {
-    const { gsap } = ensureJasmineGsap();
-    const isMobile = window.matchMedia("(max-width: 601px)").matches;
-    const cards = gsap.utils.toArray<HTMLElement>(".section-all-break .t-card");
-    const titles = gsap.utils.toArray<HTMLElement>(".section-all-break .title-slider-item");
-    const nums = gsap.utils.toArray<HTMLElement>(".section-all-break .t-slide-navigation-number");
-
-    cards.forEach((card, index) => {
-      const offset = index - active;
-      const wrapped = offset > items.length / 2 ? offset - items.length : offset < -items.length / 2 ? offset + items.length : offset;
-      gsap.to(card, {
-        [isMobile ? "xPercent" : "yPercent"]: wrapped * 112,
-        scale: Math.max(0.52, 1 - Math.abs(wrapped) * 0.16),
-        opacity: Math.abs(wrapped) > 2 ? 0 : 1,
-        zIndex: 50 - Math.abs(wrapped),
-        duration: 1.2,
-        ease: "ease-inout-1",
-      });
-      card.classList.toggle("is--active", index === active);
-      const video = card.querySelector<HTMLVideoElement>("video");
-      if (index === active && video) {
-        video.play().catch(() => undefined);
-      } else if (video) {
-        video.pause();
-        video.currentTime = 0;
-      }
-    });
-
-    titles.forEach((title, index) => {
-      gsap.to(title, {
-        yPercent: (index - active) * -100,
-        opacity: index === active ? 1 : 0.28,
-        duration: 1.1,
-        ease: "ease-inout-1",
-      });
-    });
-
-    nums.forEach((num, index) => {
-      gsap.to(num.querySelector(".t-slide-navigation-number-inner"), {
-        scale: index === active ? 1 : 0.52,
-        opacity: index === active ? 1 : 0.28,
-        duration: 0.8,
-        ease: "expo.out",
-      });
-    });
-  }, [active, items.length]);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) {
-      return;
-    }
-    let locked = false;
-    const wheel = (event: WheelEvent) => {
-      event.preventDefault();
-      if (locked) {
-        return;
-      }
-      locked = true;
-      wrap(active + (event.deltaY > 0 ? 1 : -1));
-      window.setTimeout(() => {
-        locked = false;
-      }, 620);
-    };
-    section.addEventListener("wheel", wheel, { passive: false });
-    return () => section.removeEventListener("wheel", wheel);
-  }, [active, wrap]);
+  }, [items.length]);
 
   return (
     <section ref={sectionRef} className="section-all-break">
@@ -161,8 +113,8 @@ function AllBreakSlider({ items }: { items: BreakItem[] }) {
             <div className="title-slider">
               <div className="title-slider-container-wrapper">
                 <div className="title-slider-container">
-                  {items.map((item, index) => (
-                    <a href={item.href} className="title-slider-item" key={item.slug} onMouseEnter={() => wrap(index)}>
+                  {loopedItems.map(({ copy, index, item }) => (
+                    <a href={item.href} className="title-slider-item" key={`${item.slug}-title-${copy}-${index}`}>
                       <div className="title-slider-inner">{item.title}</div>
                     </a>
                   ))}
@@ -172,8 +124,8 @@ function AllBreakSlider({ items }: { items: BreakItem[] }) {
             <div className="card-slider">
               <div className="card-container-wrapper">
                 <div className="card-container">
-                  {items.map((item, index) => (
-                    <div className="t-card" key={item.slug} onMouseEnter={() => wrap(index)}>
+                  {loopedItems.map(({ copy, index, item }) => (
+                    <div className="t-card" key={`${item.slug}-card-${copy}-${index}`}>
                       <div className="t-card-media">
                         {item.hoverVideo ? (
                           <video className="t-card-hover-media" src={item.hoverVideo} loop muted playsInline preload="metadata" />
@@ -188,7 +140,7 @@ function AllBreakSlider({ items }: { items: BreakItem[] }) {
               </div>
             </div>
             <div className="t-slide-controls">
-              <button className="t-slide-navigation prev" type="button" onClick={() => wrap(active - 1)}>
+              <button className="t-slide-navigation prev" type="button" onClick={carousel.prev}>
                 PREV
               </button>
               <div className="t-slide-number-current-container-wrapper">
@@ -198,13 +150,13 @@ function AllBreakSlider({ items }: { items: BreakItem[] }) {
               </div>
               <div className="t-slide-number-separator">/</div>
               <div className="t-slide-number-total">{total}</div>
-              <button className="t-slide-navigation next" type="button" onClick={() => wrap(active + 1)}>
+              <button className="t-slide-navigation next" type="button" onClick={carousel.next}>
                 NEXT
               </button>
               <div className="t-slide-navigation-number-wrapper">
                 <div className="t-slide-navigation-number-container">
                   {items.map((item, index) => (
-                    <button type="button" className="t-slide-navigation-number" key={item.slug} onClick={() => wrap(index)}>
+                    <button type="button" className="t-slide-navigation-number" key={item.slug} onClick={() => carousel.goTo(index)}>
                       <span className="t-slide-navigation-number-inner">{item.number}</span>
                     </button>
                   ))}
